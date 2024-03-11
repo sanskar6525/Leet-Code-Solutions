@@ -15,28 +15,31 @@
  */
 class Solution {
     public List<Double> averageOfLevels(TreeNode root) {
-        LinkedList<Double> ll = new LinkedList<>();
-        Queue<TreeNode> q = new LinkedList<>(); // in bfs we take queue to traverse one level completely
+        List<Double> res=new ArrayList<>();
+        if(root==null)
+            return res;
+        
+        Queue<TreeNode> q=new LinkedList<>();
+        q.offer(root);
 
-        if (root == null) {
-            return ll;
-        }
-        q.add(root);
-        while (!q.isEmpty()) {
-            int n = q.size();  // here n is the level size or number of elements in level
-            double sum = 0.0;
-            for (int i = 0; i < n; i++) {
-                TreeNode node = q.poll(); // removing/polling a node 
-                sum += node.val; // adding it to sum of the level
-                if (node.left != null) { // now again we will add remove node left and right to queue for next level calculation
-                    q.offer(node.left);
-                }
-                if (node.right != null) {
-                    q.offer(node.right);
-                }
+        while(!q.isEmpty())
+        {
+            double r=0.0;
+            double sum=0.0;
+            int s=q.size();
+            for(int i=0;i<s;i++)
+            {
+                TreeNode temp=q.poll();
+                sum=sum+temp.val;
+                if(temp.left!=null)
+                    q.offer(temp.left);
+                if(temp.right!=null)
+                    q.offer(temp.right);
+                
             }
-            ll.add(sum / n); // average value in the level
+            r=sum/s;
+            res.add(r);
         }
-        return ll;
+        return res;
     }
 }
