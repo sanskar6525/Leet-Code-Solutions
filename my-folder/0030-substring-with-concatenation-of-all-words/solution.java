@@ -1,59 +1,72 @@
-class Solution 
-{
-    public List<Integer> findSubstring(String s, String[] words) 
-    {
-        if(words[0].length()*words.length>s.length())
-            return new ArrayList<>();
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Solution {
+    public List<Integer> findSubstring(String s, String[] words) {
+        List<Integer> result = new ArrayList<>();
+        if (s == null || s.length() == 0 || words == null || words.length == 0) {
+            return result;
+        }
         
-        Map<String,Integer> word_frq=new HashMap<>();
-        List<Integer> ans=new ArrayList<>();
+        int wordLength = words[0].length();
+        int wordCount = words.length;
+        int totalLength = wordLength * wordCount;
+        Map<String, Integer> wordMap = new HashMap<>();
         
-        // Map store the frequency of every word in words[]
+        for (String word : words) {
+            wordMap.put(word, wordMap.getOrDefault(word, 0) + 1);
+        }
         
-        for(String str:words)
-            word_frq.put(str,word_frq.getOrDefault(str,0)+1);
-        
-        int wordlen=words[0].length();  
-        
-        String[] str=new String[s.length()];
-        
-        for(int i=0;i<wordlen;i++)
-        {
-            Map<String,Integer> frq=new HashMap<>();  // count frequency of words inside the window
+        for (int i = 0; i < wordLength; i++) {
+            int left = i;
+            int right = i;
+            int count = 0;
+            Map<String, Integer> seenWords = new HashMap<>();
             
-            int begin=i,size=0; // size is the no. of window and begin is the starting index of window
-            
-            // s.length()-wordlen -> based on observation
-            
-            for(int j=i;j<=s.length()-wordlen;j+=wordlen)
-            {
-                str[j]=s.substring(j,j+wordlen);  // window
-                if(word_frq.containsKey(str[j]))
-                {
-                    begin= begin==-1? j:begin; // begin=-1 means new window need to be started
-                    frq.put(str[j],frq.getOrDefault(str[j],0)+1); 
-                    size++; 
+            while (right + wordLength <= s.length()) {
+                String word = s.substring(right, right + wordLength);
+                right += wordLength;
+                
+                if (wordMap.containsKey(word)) {
+                    seenWords.put(word, seenWords.getOrDefault(word, 0) + 1);
+                    count++;
                     
-                    if(size==words.length)  // substring may be possible
-                    {
-                        if(frq.equals(word_frq))
-                            ans.add(begin);
-                        
-                        // sliding the window 
-                        
-                        frq.put(str[begin],frq.get(str[begin])-1); 
-                        begin+=wordlen;  // new starting index
-                        size--;
+                    while (seenWords.get(word) > wordMap.get(word)) {
+                        String leftWord = s.substring(left, left + wordLength);
+                        seenWords.put(leftWord, seenWords.get(leftWord) - 1);
+                        left += wordLength;
+                        count--;
                     }
-                }
-                else  // reset window
-                {
-                    begin=-1;
-                    size=0;
-                    frq.clear();
+                    
+                    if (count == wordCount) {
+                        result.add(left);
+                    }
+                } else {
+                    seenWords.clear();
+                    count = 0;
+                    left = right;
                 }
             }
         }
-        return ans;
+        
+        return result;
+    }
+    
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        String s = "barfoothefoobarman";
+        String[] words = {"foo", "bar"};
+        System.out.println(solution.findSubstring(s, words)); // Output: [0, 9]
+        
+        s = "wordgoodgoodgoodbestword";
+        words = new String[]{"word","good","best","word"};
+        System.out.println(solution.findSubstring(s, words)); // Output: []
+        
+        s = "barfoofoobarthefoobarman";
+        words = new String[]{"bar","foo","the"};
+        System.out.println(solution.findSubstring(s, words)); // Output: [6, 9, 12]
     }
 }
+
